@@ -15,14 +15,10 @@ var (
 	ErrListenEndpointUnknown = errors.New("无法从现有 Xray 配置唯一确定本机 ichuansu 服务监听地址")
 )
 
-// ResolveLocalSOCKS returns the one explicitly configured loopback SOCKS inbound.
-// It never guesses a default port or uses an outbound Xray server as the proxy.
 func ResolveLocalSOCKS(programDir string) (config.SOCKSInbound, error) {
 	return config.UniqueSOCKSInbound(filepath.Join(programDir, "i.json"))
 }
 
-// ResolvePeerEndpoint intentionally fails closed. Standard Xray server/outbound
-// addresses identify Xray infrastructure, not necessarily this user's peer PC.
 func ResolvePeerEndpoint(programDir string) (string, error) {
 	if _, _, err := config.Load(filepath.Join(programDir, "i.json")); err != nil {
 		return "", fmt.Errorf("本机 i.json 不可用：%w", err)
@@ -30,8 +26,6 @@ func ResolvePeerEndpoint(programDir string) (string, error) {
 	return "", ErrPeerEndpointUnknown
 }
 
-// ResolveListenEndpoint intentionally fails closed until the actual interface
-// and port are established by a two-host test. Binding to 0.0.0.0 is forbidden.
 func ResolveListenEndpoint(programDir string) (string, error) {
 	if _, _, err := config.Load(filepath.Join(programDir, "i.json")); err != nil {
 		return "", fmt.Errorf("本机 i.json 不可用：%w", err)
@@ -39,10 +33,8 @@ func ResolveListenEndpoint(programDir string) (string, error) {
 	return "", ErrListenEndpointUnknown
 }
 
-// ExplainBlocker describes the required deployment fact without asking users
-// to disclose their private Xray configuration.
 func ExplainBlocker() string {
 	return "需要在两台电脑实测并确定 ichuansu 服务应使用的对端 IP:port、" +
-		本机 Xray SOCKS 入站和实际路由关系。Xray 节点地址不是对端电脑地址；" +
-		程序不会猜测端点、修改 i.json 或回退到公网直连。"
+		"本机 Xray SOCKS 入站和实际路由关系。Xray 节点地址不是对端电脑地址；" +
+		"程序不会猜测端点、修改 i.json 或回退到公网直连。"
 }
