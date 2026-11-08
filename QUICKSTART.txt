@@ -1,0 +1,36 @@
+ichuansu v0.1.0-alpha — 预览版快速开始
+=============================================
+
+本版本用于验证程序打包、平台启动和本机诊断流程。它不是已经完成双机网络验收的文件传输版。
+
+Windows x86-64 / ARM64
+----------------------
+1. 解压对应的 windows ZIP 文件。
+2. 将文件夹放到 Xray 程序目录（与 i.json 同目录）。
+3. 打开 CMD，进入该目录。
+4. 运行：
+     ichuansu.cmd --version
+     ichuansu.cmd --help
+     ichuansu.cmd diagnose
+
+Windows 由 ichuansu.cmd 调用同目录的 _ichuansu.exe。
+
+Linux x86-64 / ARM64
+--------------------
+1. 解压对应的 linux tar.gz 文件。
+2. 建议将 ichuansu 放到 Xray 程序目录（与 i.json 同目录）。
+3. 运行：
+     chmod +x ./ichuansu
+     ./ichuansu --version
+     ./ichuansu --help
+     ./ichuansu diagnose
+
+重要限制
+--------
+当前版本尚未在两台真实电脑上验证 Xray 到远端 ichuansu 服务的应用端点映射。
+因此 serve、iget、iput 会安全地拒绝执行，直到监听端点、远端端点和 Xray 路由经双机测试明确。
+这不是配置步骤遗漏；程序不会猜测 Xray 节点地址就是远端电脑，也不会修改 i.json、
+新增 VPS/中转，或在 Xray 不可用时回退到公网直连。
+
+当前可运行命令：--help、--version、diagnose。
+请勿将本预览包当作已通过双机验收的文件传输工具。
