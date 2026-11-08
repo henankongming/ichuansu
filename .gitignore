@@ -1,0 +1,5 @@
+/dist/
+/ichuansu
+/_ichuansu.exe
+*.test
+*.out
