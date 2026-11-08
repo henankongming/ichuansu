@@ -10,7 +10,7 @@ import (
 	"net"
 	"net/http"
 	"path/filepath"
-	"strconf"
+	"strconv"
 	"strings"
 	"time"
 
@@ -201,10 +201,10 @@ func ListenAndServe(address, programDir string, token []byte) error {
 
 func ServeListener(listener net.Listener, programDir string, token []byte) error {
 	server := &http.Server{
-		Handler:           NewHandler(programDir, token),
+		Handler:            NewHandler(programDir, token),
 		ReadHeaderTimeout: 10 * time.Second,
-		IdleTimeout:       60 * time.Second,
-		MaxHeaderBytes:    1 << 20,
+		IdleTimeout:        60 * time.Second,
+		MaxHeaderBytes:     1 << 20,
 	}
 	return server.Serve(&idleListener{Listener: listener, timeout: 2 * time.Minute})
 }

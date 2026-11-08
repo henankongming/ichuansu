@@ -25,7 +25,7 @@ func TestLoadSummarizesAndDoesNotExposeSecrets(t *testing.T) {
 		t.Fatalf("summary: %#v", summary)
 	}
 	if len(summary.OutboundProtocols) != 1 || summary.OutboundProtocols[0] != "vless" || summary.RoutingRuleCount != 1 {
-		t.Fatal("unexpected summary: %#v", summary)
+		t.Fatalf("unexpected summary: %#v", summary)
 	}
 	if len(socks) != 1 || socks[0].Address != "127.0.0.1:10808" || socks[0].Username != "user-secret" || socks[0].Password != "pass-secret" {
 		t.Fatalf("unexpected SOCKS details: %#v", socks)
@@ -56,7 +56,7 @@ func TestUniqueSOCKSRefusesAmbiguousAndMissing(t *testing.T) {
 
 func TestMalformedConfigDoesNotEchoSecrets(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "i.json")
-	if err := os.WriteFile(path, []byte(`{"password":"do-not-leak",`)], 0o600); err != nil {
+	if err := os.WriteFile(path, []byte(`{"password":"do-not-leak",`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	_, _, err := Load(path)
