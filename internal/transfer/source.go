@@ -149,7 +149,7 @@ func zipDirectory(root string) (string, error) {
 		if err != nil {
 			return err
 		}
-		if info.Mode()&os.ModeSymbolk != 0 {
+		if info.Mode()&os.ModeSymlink != 0 {
 			return nil
 		}
 		if !info.Mode().IsRegular() && !info.IsDir() {
@@ -188,7 +188,7 @@ func zipDirectory(root string) (string, error) {
 		if err != nil {
 			return err
 		}
-		_, copyErr := io.Copy(izpEntry, input)
+		_, copyErr := io.Copy(zipEntry, input)
 		closeErr := input.Close()
 		if copyErr != nil {
 			return copyErr

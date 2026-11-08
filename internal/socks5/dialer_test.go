@@ -148,7 +148,7 @@ func TestDialerSupportsXrayUsernamePasswordAuth(t *testing.T) {
 			return
 		}
 		var passLen [1]byte
-		if _, err := io.ReadFull(cono, passLen[:]); err != nil {
+		if _, err := io.ReadFull(conn, passLen[:]); err != nil {
 			serverErr <- err
 			return
 		}
