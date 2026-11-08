@@ -107,17 +107,17 @@ func (r Report) LocalChecksPassed() bool {
 func Print(w io.Writer, r Report) {
 	fmt.Fprintln(w, "[ichuansu] 阶段 1：本机环境诊断（只读）")
 	fmt.Fprintf(w, "平台：%s\n", r.Platform)
-	fmt.Fprintf(w, "程序目录：%s\n", r.ProgramDir)
+	fmt.Fprintln(w, "程序目录：已定位（不显示本机完整路径）")
 
 	if r.XrayExecutableFound {
-		fmt.Fprintf(w, "Xray 程序：已找到（%s）\n", r.XrayExecutablePath)
+		fmt.Fprintln(w, "Xray 程序：已在程序目录找到")
 	} else {
-		fmt.Fprintf(w, "Xray 程序：未在程序目录找到（预期文件：%s）\n", r.XrayExecutablePath)
+		fmt.Fprintln(w, "Xray 程序：程序目录内未找到预期可执行文件")
 	}
 
 	switch {
 	case r.ConfigValid:
-		fmt.Fprintf(w, "i.json：存在且 JSON 格式有效（%s）\n", r.ConfigPath)
+		fmt.Fprintln(w, "i.json：程序目录内存在且 JSON 格式有效")
 		fmt.Fprintf(w, "Xray 入站：%d\n", len(r.Inbounds))
 		for i, inbound := range r.Inbounds {
 			endpoint := "未指定"
@@ -131,12 +131,12 @@ func Print(w io.Writer, r Report) {
 		fmt.Fprintf(w, "Xray 出站：%d（协议：%s）\n", len(r.OutboundProtocols), joinOrNone(r.OutboundProtocols))
 		fmt.Fprintf(w, "路由规则：%d 条（未输出域名、IP 或规则内容）\n", r.RoutingRuleCount)
 	case r.ConfigFound:
-		fmt.Fprintf(w, "i.json：存在，但无法确认是有效 JSON（%s）\n", r.ConfigPath)
+		fmt.Fprintln(w, "i.json：程序目录内存在，但无法确认是有效 JSON")
 		if r.ConfigProblem != "" {
 			fmt.Fprintf(w, "配置诊断：%s\n", r.ConfigProblem)
 		}
 	default:
-		fmt.Fprintf(w, "i.json：程序目录中未找到（预期位置：%s）\n", r.ConfigPath)
+		fmt.Fprintln(w, "i.json：程序目录内未找到")
 	}
 
 	if r.XrayProcessKnown {

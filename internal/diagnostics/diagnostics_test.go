@@ -45,6 +45,9 @@ func TestInspectConfigSummarizesWithoutExposingSecrets(t *testing.T) {
 		OutboundProtocols: summary.OutboundProtocols,
 		RoutingRuleCount:  summary.RoutingRuleCount,
 	})
+	if strings.Contains(output.String(), dir) {
+		t.Fatal("diagnostic output leaked the local program directory")
+	}
 	for _, secret := range []string{"secret-user", "secret-password", "uuid-secret", "private.example.invalid", "secret.example.invalid"} {
 		if strings.Contains(output.String(), secret) {
 			t.Fatalf("diagnostic output leaked %q", secret)
