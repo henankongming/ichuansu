@@ -32,7 +32,7 @@ func TestLoadOrCreateTokenPersistsRandomKey(t *testing.T) {
 		t.Fatal(err)
 	}
 	if info.Size() != 32 {
-		t.Fatal("token file size = %d", info.Size())
+		t.Fatalf("token file size = %d", info.Size())
 	}
 }
 
