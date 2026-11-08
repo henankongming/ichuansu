@@ -1,0 +1,97 @@
+name: Build and publish preview release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            asset: ichuansu-v0.1.0-alpha-linux-amd64.tar.gz
+          - goos: linux
+            goarch: arm64
+            asset: ichuansu-v0.1.0-alpha-linux-arm64.tar.gz
+          - goos: windows
+            goarch: amd64
+            asset: ichuansu-v0.1.0-alpha-windows-amd64.zip
+          - goos: windows
+            goarch: arm64
+            asset: ichuansu-v0.1.0-alpha-windows-arm64.zip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache: true
+      - name: Validate source
+        run: |
+          gofmt -w .
+          go test -race ./...
+          go vet ./...
+      - name: Build and package
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          VERSION: v0.1.0-alpha
+          ASSET: ${{ matrix.asset }}
+        run: |
+          set -eux
+          mkdir -p bundle dist
+          if [ "$GOOS" = "windows" ]; then
+            GOOS="$GOOS" GOARCH="$GOARCH" go build -trimpath -ldflags="-s -w -X main.version=$VERSION" -o bundle/_ichuansu.exe .
+            cp ichuansu.cmd bundle/
+            cp QUICKSTART.txt bundle/
+            (cd bundle && zip -q -r "../dist/$ASSET" .)
+          else
+            GOOS="$GOOS" GOARCH="$GOARCH" go build -trimpath -ldflags="-s -w -X main.version=$VERSION" -o bundle/ichuansu .
+            chmod +x bundle/ichuansu
+            cp QUICKSTART.txt bundle/
+            tar -C bundle -czf "dist/$ASSET" .
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Generate SHA-256 checksums
+        run: |
+          set -eux
+          cd dist
+          sha256sum *.zip *.tar.gz > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Publish v0.1.0-alpha preview
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0-alpha
+          target_commitish: ${{ github.sha }}
+          name: ichuansu v0.1.0-alpha（预览版）
+          body_path: RELEASE_NOTES.md
+          prerelease: true
+          draft: false
+          files: dist/*
+          fail_on_unmatched_files: true
